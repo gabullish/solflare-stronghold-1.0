@@ -524,7 +524,7 @@ function handleKeyInput(scene, key) {
     }
 
     if (typed.length >= POWER_WORD.length) {
-        const matchAny = enemies.some(e => e.alive && e.word === typed);
+        const matchAny = enemies.some(e => e.alive && e.word.startsWith(typed));
         const pwPrefix = POWER_WORD.startsWith(typed);
         if (!matchAny && !pwPrefix) {
             typed = '';
