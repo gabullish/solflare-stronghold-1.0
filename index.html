@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Solflare: Stronghold of the Free</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-container"></div>
+  <input id="hiddenInput" type="text" autocomplete="off" />
+  <div id="startScreen">
+    <img id="titleImage" src="assets/solflare_title.png" alt="Solflare" />
+    <button id="startButton">Start</button>
+  </div>
+  <button id="restartButton">Restart</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <script src="word_bank.js"></script>
+  <script src="game.js"></script>
+  <script>
+    const startBtn = document.getElementById('startButton');
+    const restartBtn = document.getElementById('restartButton');
+    const hiddenInput = document.getElementById('hiddenInput');
+    const startScreen = document.getElementById('startScreen');
+    const gameContainer = document.getElementById('game-container');
+    window.hiddenInput = hiddenInput;
+
+    function launchGame() {
+      startScreen.style.display = 'none';
+      restartBtn.style.display = 'none';
+      startGame();
+      hiddenInput.focus();
+    }
+
+    startBtn.addEventListener('click', launchGame);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        if (startScreen.style.display !== 'none') {
+          launchGame();
+        } else if (window.gameOver) {
+          restartBtn.style.display = 'none';
+          window.resetGame(window.currentScene);
+          hiddenInput.focus();
+        }
+      }
+    });
+
+    restartBtn.addEventListener('click', () => {
+      restartBtn.style.display = 'none';
+      window.resetGame(window.currentScene);
+      hiddenInput.focus();
+    });
+
+    window.showRestartButton = () => {
+      restartBtn.style.display = 'block';
+      hiddenInput.focus();
+    };
+    window.hideRestartButton = () => {
+      restartBtn.style.display = 'none';
+    };
+
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent) ||
+                     window.matchMedia('(pointer: coarse)').matches;
+
+    hiddenInput.addEventListener('focus', () => {
+      if (isMobile) {
+        gameContainer.classList.add('keyboard-open');
+      }
+    });
+    hiddenInput.addEventListener('blur', () => {
+      if (isMobile) {
+        gameContainer.classList.remove('keyboard-open');
+      }
+    });
+
+    if (isMobile) {
+      hiddenInput.addEventListener('input', (e) => {
+        if (window.handleTyping) {
+          window.handleTyping(e.target.value);
+        }
+        e.target.value = '';
+      });
+
+      hiddenInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace') {
+          if (window.handleTyping) window.handleTyping('\b');
+          e.preventDefault();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+
