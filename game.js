@@ -509,7 +509,6 @@ function handleKeyInput(scene, key) {
     } else {
         return;
     }
-    console.log(typed)
 
     if (typed === POWER_WORD) {
         if (specialCharges > 0) {
