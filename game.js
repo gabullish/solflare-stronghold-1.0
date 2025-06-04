@@ -266,11 +266,12 @@ function create() {
 
 
     // Debug lines
-    let graphics = this.add.graphics();
-    graphics.lineStyle(3, 0xff0000, 1);
-    graphics.lineBetween(DOOR_X, 0, DOOR_X, GAME_HEIGHT);
-    graphics.lineStyle(3, 0x00ff00, 1);
-    graphics.lineBetween(0, DOOR_Y, GAME_WIDTH, DOOR_Y);
+// let graphics = this.add.graphics();
+// graphics.lineStyle(3, 0xff0000, 1);
+// graphics.lineBetween(DOOR_X, 0, DOOR_X, GAME_HEIGHT);
+// graphics.lineStyle(3, 0x00ff00, 1);
+// graphics.lineBetween(0, DOOR_Y, GAME_WIDTH, DOOR_Y);
+
 
     // Start with two enemies spaced out
     spawnEnemy(this);
