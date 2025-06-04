@@ -509,6 +509,7 @@ function handleKeyInput(scene, key) {
     } else {
         return;
     }
+    console.log(typed)
 
     if (typed === POWER_WORD) {
         if (specialCharges > 0) {
@@ -524,7 +525,7 @@ function handleKeyInput(scene, key) {
     }
 
     if (typed.length >= POWER_WORD.length) {
-        const matchAny = enemies.some(e => e.alive && e.word === typed);
+        const matchAny = enemies.some(e => e.alive && e.word.startsWith(typed));
         const pwPrefix = POWER_WORD.startsWith(typed);
         if (!matchAny && !pwPrefix) {
             typed = '';
