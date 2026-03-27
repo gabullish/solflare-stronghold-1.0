@@ -14,8 +14,10 @@
   <input id="hiddenInput" type="text" autocomplete="off" />
 
   <div id="floatingControls">
-    <button id="pauseButton" class="hudButton">Pause (P)</button>
-    <button id="muteButton" class="hudButton">Mute (M)</button>
+    <button id="pauseButton" class="hudButton">Pause</button>
+    <button id="muteButton" class="hudButton">Mute</button>
+    <button id="contrastButton" class="hudButton">Contrast: Off</button>
+    <button id="textSizeButton" class="hudButton">Text: 100%</button>
   </div>
 
   <div id="startScreen">
@@ -24,7 +26,7 @@
     <ul id="featureList">
       <li>Adaptive enemy scaling and elite threats</li>
       <li>Combo multiplier, accuracy tracking, and personal high score</li>
-      <li>Pause / mute controls + improved mobile keyboard support</li>
+      <li>Pause / mute + contrast + text-size controls and better mobile keyboard support</li>
     </ul>
     <button id="startButton">Start</button>
   </div>
@@ -39,6 +41,8 @@
     const restartBtn = document.getElementById('restartButton');
     const pauseBtn = document.getElementById('pauseButton');
     const muteBtn = document.getElementById('muteButton');
+    const contrastBtn = document.getElementById('contrastButton');
+    const textSizeBtn = document.getElementById('textSizeButton');
     const hiddenInput = document.getElementById('hiddenInput');
     const startScreen = document.getElementById('startScreen');
     const gameContainer = document.getElementById('game-container');
@@ -62,6 +66,21 @@
       if (window.toggleMuteGame) window.toggleMuteGame();
       hiddenInput.focus();
     });
+
+    contrastBtn.addEventListener('click', () => {
+      if (window.toggleContrastGame) window.toggleContrastGame();
+      hiddenInput.focus();
+    });
+
+    textSizeBtn.addEventListener('click', () => {
+      if (window.toggleTextSizeGame) window.toggleTextSizeGame();
+      hiddenInput.focus();
+    });
+
+    window.updateAccessibilityControls = (settings) => {
+      contrastBtn.textContent = `Contrast: ${settings.highContrast ? 'On' : 'Off'}`;
+      textSizeBtn.textContent = `Text: ${(settings.textScale * 100).toFixed(0)}%`;
+    };
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {

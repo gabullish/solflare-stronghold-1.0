@@ -6,14 +6,14 @@ A typing-defense browser game where you protect the Solflare Stronghold from wav
 
 - **Revamped progression:** adaptive spawn pacing, tougher waves, and elite enemies that require extra precision.
 - **Skill expression systems:** combo multiplier, accuracy tracking, kill streak rewards, and real-time performance HUD.
-- **Power/QoL upgrades:** pause (`P`), mute (`M`), improved restart flow, mobile typing support, and persistent high score.
+- **Power/QoL upgrades:** pause/mute buttons, auto-pause on tab switch, accessibility toggles (high contrast + text scaling), improved restart flow, mobile typing support, and persistent settings.
 - **Validated content:** word bank sanitization at runtime (deduping/format checks + safe fallbacks) for stable gameplay.
 
 ## Controls
 
 - Type enemy words to fire arrows.
 - Type `honda` when charged to unleash the car power.
-- `P` = pause, `M` = mute, `SPACE` = start/restart.
+- Use on-screen **Pause**, **Mute**, **Contrast**, and **Text Size** buttons, `SPACE` = start/restart.
 - Mobile users can use on-screen keyboard input with focus auto-handling.
 
 ## Run locally

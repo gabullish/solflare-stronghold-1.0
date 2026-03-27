@@ -26,6 +26,7 @@ const ENEMY_DEFAULT_Y = (ENEMY_MIN_Y + ENEMY_MAX_Y) / 2;
 const MIN_SPAWN_DISTANCE = ENEMY_WIDTH * 1.08;
 
 const SAVE_KEY = 'solflare_stronghold_v2';
+const TEXT_SCALE_STEPS = [1, 1.2, 1.4];
 
 let archer;
 let typed = '';
@@ -63,10 +64,16 @@ let pauseOverlayGroup = null;
 let gameOver = false;
 let isPaused = false;
 let isMuted = false;
+let autoPauseBound = false;
 window.gameOver = gameOver;
 
 let totalTypedChars = 0;
 let totalMistakes = 0;
+
+let accessibility = {
+    highContrast: false,
+    textScale: 1
+};
 
 const config = {
     type: Phaser.AUTO,
@@ -118,14 +125,28 @@ function loadSaveData() {
         if (parsed && Number.isFinite(parsed.highScore)) {
             highScore = parsed.highScore;
         }
+        if (parsed && typeof parsed.highContrast === 'boolean') {
+            accessibility.highContrast = parsed.highContrast;
+        }
+        if (parsed && TEXT_SCALE_STEPS.includes(parsed.textScale)) {
+            accessibility.textScale = parsed.textScale;
+        }
     } catch (err) {
         highScore = 0;
+        accessibility = {
+            highContrast: false,
+            textScale: 1
+        };
     }
 }
 
 function persistSaveData() {
     try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify({ highScore }));
+        localStorage.setItem(SAVE_KEY, JSON.stringify({
+            highScore,
+            highContrast: accessibility.highContrast,
+            textScale: accessibility.textScale
+        }));
     } catch (err) {
         // ignore storage write failures
     }
@@ -217,9 +238,9 @@ function spawnEnemy(scene) {
     const word = pickWord();
     const text = scene.add.text(0, 0, word, {
         fontFamily: 'monospace',
-        fontSize: profile.elite ? '36px' : '32px',
-        color: profile.elite ? '#ffb347' : '#fff200',
-        stroke: '#2a1e00',
+        fontSize: scaled(profile.elite ? 36 : 32),
+        color: accessibility.highContrast ? (profile.elite ? '#ffd966' : '#ffffff') : (profile.elite ? '#ffb347' : '#fff200'),
+        stroke: accessibility.highContrast ? '#000000' : '#2a1e00',
         strokeThickness: profile.elite ? 7 : 6
     }).setOrigin(0.5);
 
@@ -242,6 +263,57 @@ function spawnEnemy(scene) {
 
 function calculateMultiplier() {
     return 1 + Math.floor(combo / 5);
+}
+
+function scaled(size) {
+    return `${Math.round(size * accessibility.textScale)}px`;
+}
+
+function updateAccessibilityButtons() {
+    if (window.updateAccessibilityControls) {
+        window.updateAccessibilityControls(accessibility);
+    }
+}
+
+function applyAccessibilitySettings(scene) {
+    const contrastClass = 'high-contrast';
+    if (document.body) {
+        document.body.classList.toggle(contrastClass, accessibility.highContrast);
+    }
+
+    const baseHudColor = accessibility.highContrast ? '#ffffff' : '#f4f4f4';
+    const hudBg = accessibility.highContrast ? 'rgba(0,0,0,0.78)' : 'rgba(0,0,0,0.35)';
+
+    if (typedText) {
+        typedText.setFontSize(scaled(44));
+        typedText.setStyle({
+            color: accessibility.highContrast ? '#ffffff' : '#fffbe8',
+            backgroundColor: accessibility.highContrast ? 'rgba(0,0,0,0.9)' : 'rgba(28,28,28,0.78)'
+        });
+    }
+    if (feedbackText) feedbackText.setFontSize(scaled(28));
+    if (scoreText) scoreText.setFontSize(scaled(30));
+    if (waveText) waveText.setFontSize(scaled(28));
+    if (comboText) comboText.setFontSize(scaled(28));
+    if (accuracyText) accuracyText.setFontSize(scaled(28));
+    if (highScoreText) highScoreText.setFontSize(scaled(28));
+    if (controlsHintText) {
+        controlsHintText.setFontSize(scaled(24));
+        controlsHintText.setStyle({
+            color: baseHudColor,
+            backgroundColor: hudBg
+        });
+    }
+    if (powerText) powerText.setFontSize(scaled(30));
+
+    for (const enemyObj of enemies) {
+        if (!enemyObj.alive || !enemyObj.text) continue;
+        enemyObj.text.setFontSize(scaled(enemyObj.elite ? 36 : 32));
+    }
+
+    updateEnemyTextStyles();
+    updateAccessibilityButtons();
+    if (scene) flashFeedback(scene, accessibility.highContrast ? 'High Contrast On' : 'High Contrast Off', '#8be9fd');
 }
 
 function updateHud() {
@@ -273,14 +345,21 @@ function flashFeedback(scene, message, color = '#ffd34a') {
 }
 
 function updateEnemyTextStyles() {
+    const normalColor = accessibility.highContrast ? '#ffffff' : '#fff200';
+    const eliteColor = accessibility.highContrast ? '#ffd966' : '#ffb347';
+    const exactColor = accessibility.highContrast ? '#98ff98' : '#7fff8f';
+    const prefixColor = accessibility.highContrast ? '#9ce8ff' : '#8ff5ff';
+    const prefixStroke = accessibility.highContrast ? '#000000' : '#003d46';
+    const defaultStroke = accessibility.highContrast ? '#000000' : '#333';
+
     for (const enemyObj of enemies) {
         if (!enemyObj.alive) continue;
         const isPrefix = typed.length > 0 && enemyObj.word.startsWith(typed);
         const isExact = typed.length > 0 && enemyObj.word === typed;
 
         enemyObj.text.setStyle({
-            color: isExact ? '#7fff8f' : isPrefix ? '#8ff5ff' : enemyObj.elite ? '#ffb347' : '#fff200',
-            stroke: isPrefix ? '#003d46' : enemyObj.elite ? '#2a1e00' : '#333'
+            color: isExact ? exactColor : isPrefix ? prefixColor : enemyObj.elite ? eliteColor : normalColor,
+            stroke: isPrefix ? prefixStroke : defaultStroke
         });
     }
 }
@@ -406,7 +485,7 @@ function create() {
 
     typedText = this.add.text(GAME_WIDTH / 2, TYPED_TEXT_Y, '', {
         fontFamily: 'monospace',
-        fontSize: '44px',
+        fontSize: scaled(44),
         color: '#fffbe8',
         backgroundColor: 'rgba(28,28,28,0.78)',
         fontStyle: 'bold',
@@ -424,7 +503,7 @@ function create() {
 
     feedbackText = this.add.text(GAME_WIDTH / 2, TYPED_TEXT_Y + 64, '', {
         fontFamily: 'monospace',
-        fontSize: '28px',
+        fontSize: scaled(28),
         color: '#ffd34a',
         stroke: '#151515',
         strokeThickness: 5
@@ -438,37 +517,37 @@ function create() {
 
     scoreText = this.add.text(80, 32, 'Score: 0', {
         fontFamily: 'monospace',
-        fontSize: '30px',
+        fontSize: scaled(30),
         color: '#fff'
     });
 
     waveText = this.add.text(80, 70, 'Wave: 1', {
         fontFamily: 'monospace',
-        fontSize: '28px',
+        fontSize: scaled(28),
         color: '#9fe8ff'
     });
 
     comboText = this.add.text(80, 108, 'Combo x1 (0)', {
         fontFamily: 'monospace',
-        fontSize: '28px',
+        fontSize: scaled(28),
         color: '#9bffaf'
     });
 
     accuracyText = this.add.text(80, 146, 'Accuracy: 100%', {
         fontFamily: 'monospace',
-        fontSize: '28px',
+        fontSize: scaled(28),
         color: '#ffd68a'
     });
 
     highScoreText = this.add.text(80, 184, `Best: ${highScore}`, {
         fontFamily: 'monospace',
-        fontSize: '28px',
+        fontSize: scaled(28),
         color: '#ff92a6'
     });
 
-    controlsHintText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 26, 'SPACE = restart • P = pause • M = mute • type words to defend the gate', {
+    controlsHintText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 26, 'Use Pause/Mute buttons • SPACE = restart on game over', {
         fontFamily: 'monospace',
-        fontSize: '24px',
+        fontSize: scaled(24),
         color: '#f4f4f4',
         backgroundColor: 'rgba(0,0,0,0.35)',
         padding: { x: 12, y: 5 }
@@ -476,7 +555,7 @@ function create() {
 
     powerText = this.add.text(GAME_WIDTH / 2, POWER_TEXT_Y, '', {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '30px',
+        fontSize: scaled(30),
         fontStyle: 'bold',
         color: '#ff0000',
         stroke: '#000',
@@ -491,6 +570,7 @@ function create() {
 
     updatePowerText(this);
     updateHud();
+    applyAccessibilitySettings(this);
 
     window.handleTyping = (text) => {
         for (const ch of text) {
@@ -499,16 +579,6 @@ function create() {
     };
 
     this.input.keyboard.on('keydown', (event) => {
-        if (event.key === 'p' || event.key === 'P') {
-            togglePause(scene);
-            return;
-        }
-
-        if (event.key === 'm' || event.key === 'M') {
-            toggleMute(scene);
-            return;
-        }
-
         handleKeyInput(scene, event.key);
     });
 
@@ -519,6 +589,20 @@ function create() {
             if (window.hiddenInput) window.hiddenInput.focus();
         }
     });
+
+    if (!autoPauseBound) {
+        autoPauseBound = true;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !gameOver && !isPaused && window.currentScene) {
+                togglePause(window.currentScene);
+            }
+        });
+        window.addEventListener('blur', () => {
+            if (!gameOver && !isPaused && window.currentScene) {
+                togglePause(window.currentScene);
+            }
+        });
+    }
 }
 
 function update(time, delta) {
@@ -670,6 +754,7 @@ function resetGame(scene) {
 
     updatePowerText(scene);
     updateHud();
+    applyAccessibilitySettings(scene);
 }
 
 function adjustSpawnRate() {
@@ -798,7 +883,7 @@ function togglePause(scene) {
             color: '#fff'
         }).setOrigin(0.5);
 
-        const txt2 = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 56, 'Press P to resume', {
+        const txt2 = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 56, 'Tap Pause button to resume', {
             fontFamily: 'monospace',
             fontSize: '28px',
             color: '#9fe8ff'
@@ -820,12 +905,35 @@ function toggleMute(scene) {
     flashFeedback(scene, isMuted ? 'Muted' : 'Sound On', isMuted ? '#ffcf7c' : '#7cffb0');
 }
 
+function cycleTextSize(scene) {
+    const currentIndex = TEXT_SCALE_STEPS.indexOf(accessibility.textScale);
+    const nextIndex = (currentIndex + 1) % TEXT_SCALE_STEPS.length;
+    accessibility.textScale = TEXT_SCALE_STEPS[nextIndex];
+    persistSaveData();
+    applyAccessibilitySettings(scene);
+    flashFeedback(scene, `Text Size ${(accessibility.textScale * 100).toFixed(0)}%`, '#7de5ff');
+}
+
+function toggleHighContrast(scene) {
+    accessibility.highContrast = !accessibility.highContrast;
+    persistSaveData();
+    applyAccessibilitySettings(scene);
+}
+
 window.togglePauseGame = () => {
     if (window.currentScene) togglePause(window.currentScene);
 };
 
 window.toggleMuteGame = () => {
     if (window.currentScene) toggleMute(window.currentScene);
+};
+
+window.toggleTextSizeGame = () => {
+    if (window.currentScene) cycleTextSize(window.currentScene);
+};
+
+window.toggleContrastGame = () => {
+    if (window.currentScene) toggleHighContrast(window.currentScene);
 };
 
 window.resetGame = resetGame;
