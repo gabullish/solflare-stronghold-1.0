@@ -12,10 +12,23 @@
 <body>
   <div id="game-container"></div>
   <input id="hiddenInput" type="text" autocomplete="off" />
+
+  <div id="floatingControls">
+    <button id="pauseButton" class="hudButton">Pause</button>
+    <button id="muteButton" class="hudButton">Mute</button>
+  </div>
+
   <div id="startScreen">
     <img id="titleImage" src="assets/solflare_title.png" alt="Solflare" />
+    <p id="subtitle">Stronghold v2 • Defend your gate with speed, accuracy, and combos.</p>
+    <ul id="featureList">
+      <li>Adaptive enemy scaling and elite threats</li>
+      <li>Combo multiplier, accuracy tracking, and personal high score</li>
+      <li>Pause / mute controls + improved mobile keyboard support</li>
+    </ul>
     <button id="startButton">Start</button>
   </div>
+
   <button id="restartButton">Restart</button>
 
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
@@ -24,6 +37,8 @@
   <script>
     const startBtn = document.getElementById('startButton');
     const restartBtn = document.getElementById('restartButton');
+    const pauseBtn = document.getElementById('pauseButton');
+    const muteBtn = document.getElementById('muteButton');
     const hiddenInput = document.getElementById('hiddenInput');
     const startScreen = document.getElementById('startScreen');
     const gameContainer = document.getElementById('game-container');
@@ -37,6 +52,16 @@
     }
 
     startBtn.addEventListener('click', launchGame);
+
+    pauseBtn.addEventListener('click', () => {
+      if (window.togglePauseGame) window.togglePauseGame();
+      hiddenInput.focus();
+    });
+
+    muteBtn.addEventListener('click', () => {
+      if (window.toggleMuteGame) window.toggleMuteGame();
+      hiddenInput.focus();
+    });
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
@@ -60,6 +85,7 @@
       restartBtn.style.display = 'block';
       hiddenInput.focus();
     };
+
     window.hideRestartButton = () => {
       restartBtn.style.display = 'none';
     };
@@ -72,6 +98,7 @@
         gameContainer.classList.add('keyboard-open');
       }
     });
+
     hiddenInput.addEventListener('blur', () => {
       if (isMobile) {
         gameContainer.classList.remove('keyboard-open');
@@ -96,4 +123,3 @@
   </script>
 </body>
 </html>
-

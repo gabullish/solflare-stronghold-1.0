@@ -1,17 +1,20 @@
 window.WORD_BANK = {
     easy: [
-        "sol","nft","dao","key","buy","pay","dex","gas","fee","tip","fud","txs",
-        "api","bin","bot","eth","btc"
+        'sol', 'nft', 'dao', 'key', 'buy', 'pay', 'dex', 'gas', 'fee', 'tip',
+        'fud', 'txs', 'api', 'bot', 'eth', 'btc', 'mint', 'send', 'hold', 'sign'
     ],
     medium: [
-        "mint","swap","send","hold","txid","burn","seed","coin","sign","lend","earn",
-        "vote","lock","hodl","dapp","swap","save","code","cold","safe","test"
+        'swap', 'burn', 'seed', 'coin', 'lend', 'earn', 'vote', 'lock', 'dapp',
+        'save', 'code', 'cold', 'safe', 'test', 'guard', 'shield', 'audit', 'alert',
+        'payer', 'owner', 'token', 'vault'
     ],
     hard: [
-        "trade","vault","claim","split","yield","block","stake","token","chain","value",
-        "slash","payer","refer","admin","alert","guard","input","smart"
+        'wallet', 'phrase', 'backup', 'domain', 'ransom', 'spoofed', 'airdrop',
+        'confirm', 'defense', 'private', 'monitor', 'session', 'staking', 'phantom',
+        'cluster', 'sandbox', 'account', 'solana', 'program', 'network'
     ],
     insane: [
-        "strong","solana"
+        'stronghold', 'validation', 'decentralized', 'multisignature', 'cryptography',
+        'counterparty', 'immutability', 'permissionless'
     ]
 };
