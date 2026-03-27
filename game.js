@@ -466,7 +466,7 @@ function create() {
         color: '#ff92a6'
     });
 
-    controlsHintText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 26, 'Use Pause/Mute buttons • SPACE = restart on game over', {
+    controlsHintText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 26, 'SPACE = restart • P = pause • M = mute • type words to defend the gate', {
         fontFamily: 'monospace',
         fontSize: '24px',
         color: '#f4f4f4',
@@ -499,6 +499,16 @@ function create() {
     };
 
     this.input.keyboard.on('keydown', (event) => {
+        if (event.key === 'p' || event.key === 'P') {
+            togglePause(scene);
+            return;
+        }
+
+        if (event.key === 'm' || event.key === 'M') {
+            toggleMute(scene);
+            return;
+        }
+
         handleKeyInput(scene, event.key);
     });
 
@@ -788,7 +798,7 @@ function togglePause(scene) {
             color: '#fff'
         }).setOrigin(0.5);
 
-        const txt2 = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 56, 'Tap Pause button to resume', {
+        const txt2 = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 56, 'Press P to resume', {
             fontFamily: 'monospace',
             fontSize: '28px',
             color: '#9fe8ff'

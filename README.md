@@ -13,7 +13,7 @@ A typing-defense browser game where you protect the Solflare Stronghold from wav
 
 - Type enemy words to fire arrows.
 - Type `honda` when charged to unleash the car power.
-- Use the on-screen **Pause** and **Mute** buttons, `SPACE` = start/restart.
+- `P` = pause, `M` = mute, `SPACE` = start/restart.
 - Mobile users can use on-screen keyboard input with focus auto-handling.
 
 ## Run locally
